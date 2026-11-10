@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+*.db
+*.db-*
+ui_settings.json
+student_display_settings.json

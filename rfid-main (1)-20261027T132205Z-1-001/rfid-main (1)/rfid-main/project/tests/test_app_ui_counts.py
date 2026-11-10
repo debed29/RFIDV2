@@ -2,6 +2,7 @@ import os
 import sys
 import unittest
 from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -43,6 +44,27 @@ class DisplayNameTests(unittest.TestCase):
             format_name_for_display({"name": "Existing Display Name"}),
             "Existing Display Name",
         )
+
+
+class ApiServerStatusTests(unittest.TestCase):
+    def test_http_error_means_server_is_online_and_records_status_code(self):
+        import requests
+
+        response = Mock()
+        response.raise_for_status.side_effect = requests.exceptions.HTTPError(
+            response=SimpleNamespace(status_code=404)
+        )
+        app = SimpleNamespace(
+            settings={"server": "http://127.0.0.1:5001"},
+            set_server_status=Mock(),
+        )
+
+        with patch("app_ui.requests.request", return_value=response):
+            result = RfidApp.api(app, "POST", "/capture/start")
+
+        self.assertIsNone(result)
+        self.assertEqual(app.last_api_error, 404)
+        app.set_server_status.assert_called_once_with(True)
 
 
 if __name__ == "__main__":

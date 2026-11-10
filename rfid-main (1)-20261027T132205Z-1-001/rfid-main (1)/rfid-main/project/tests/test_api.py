@@ -224,7 +224,7 @@ class TapContract(Base):
                                   "action": "", "message": "Card not registered. Please see staff."})
         self.student("AA11", claim=False)
         from unittest import mock
-        with mock.patch("database.unix_time", side_effect=[1000.0, 1029.2, 1030.0, 1060.0]):
+        with mock.patch("database.unix_time", side_effect=[1000.0, 1009.2, 1010.0, 1020.0]):
             first = self.tap("aa11")
             duplicate = self.tap("AA11")
             timed_out = self.tap("AA11")
@@ -358,7 +358,7 @@ class TapContract(Base):
     def test_cooldown_does_not_change_open_record_or_restart_on_rejection(self):
         from unittest import mock
         self.student("AA11", claim=False)
-        with mock.patch("database.unix_time", side_effect=[2000.0, 2020.0, 2030.0]):
+        with mock.patch("database.unix_time", side_effect=[2000.0, 2009.0, 2010.0]):
             self.assertEqual(self.tap("AA11").json["result"], "TIME_IN_OK")
             last_successful_tap = db.uid_exists("AA11")["last_successful_tap"]
             db.init_db()
@@ -366,7 +366,7 @@ class TapContract(Base):
             self.assertEqual(db.uid_exists("AA11")["last_successful_tap"], last_successful_tap)
             accepted = self.tap("AA11").json
         self.assertEqual(rejected["result"], "REJECT_COOLDOWN")
-        self.assertEqual(rejected["cooldown_seconds"], 10)
+        self.assertEqual(rejected["cooldown_seconds"], 1)
         self.assertEqual(accepted["result"], "TIME_OUT_OK")
         with closing(db.get_conn()) as c:
             rows = c.execute("SELECT time_in, time_out FROM logs WHERE user_id = ?", (

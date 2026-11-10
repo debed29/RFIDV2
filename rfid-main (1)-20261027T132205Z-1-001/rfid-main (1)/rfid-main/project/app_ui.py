@@ -8,7 +8,6 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 import requests
 
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SETTINGS_FILE = os.path.join(BASE_DIR, "ui_settings.json")
 DEFAULT_SETTINGS = {"server": "http://127.0.0.1:5001", "theme": "dark", "page_size": 8}
@@ -1168,12 +1167,17 @@ class RfidApp(ctk.CTk):
 
     # ---- server ----------------------------------------------------------------------------
     def api(self, method, path, body=None):
+        self.last_api_error = None
         try:
             server = self.settings["server"].rstrip("/")
             response = requests.request(method, server + path, json=body, timeout=3)
             response.raise_for_status()
             self.set_server_status(True)
             return response.json()
+        except requests.exceptions.HTTPError as error:
+            self.last_api_error = error.response.status_code if error.response is not None else None
+            self.set_server_status(True)
+            return None
         except (requests.exceptions.RequestException, ValueError):
             self.set_server_status(False)
             return None
@@ -1199,7 +1203,11 @@ class RfidApp(ctk.CTk):
         self.stop_capture_animation()
         data = self.api("POST", "/capture/start")
         if data is None:
-            self.capture_status.configure(text="Start app.py, then try again.", text_color=self.t["red"])
+            if self.last_api_error == 404:
+                message = "This server does not support UID capture. Run app.py from this project folder."
+            else:
+                message = "Server unavailable. Start app.py from this project folder."
+            self.capture_status.configure(text=message, text_color=self.t["red"])
             return
         if not data.get("success"):
             self.capture_status.configure(text=data.get("message", "Capture is already active."),

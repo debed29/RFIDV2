@@ -80,7 +80,7 @@ Errors are `{"error": {"code": "...", "message": "..."}}`. Times are ISO 8601 wi
 Attendance status: `complete` (has time out), `pending` (open record today), `incomplete` (flagged `MISSING_TIME_OUT`, or an open
 record from a past day), `unavailable` (no log). There is no endpoint that writes to `logs`.
 
-The legacy RFID routes remain at the server root. Successful `POST /tap` responses include `action: "IN"` or `"OUT"`. A duplicate within the cooldown returns `result: "REJECT_COOLDOWN"` and `cooldown_seconds`; rejected scans do not change attendance or the last-successful-tap timestamp. The cooldown timestamp is stored in the `users` row, so restarting Flask does not clear it. Visitors use the same automatic toggle and cooldown; their configured visit limit is retained as an overstay flag, and their card expires after checkout.
+The legacy RFID routes remain at the server root. Successful `POST /tap` responses include `action: "IN"` or `"OUT"`. A duplicate within the 10-second cooldown returns `result: "REJECT_COOLDOWN"` and `cooldown_seconds`; rejected scans do not change attendance or the last-successful-tap timestamp. The cooldown timestamp is stored in the `users` row, so restarting Flask does not clear it. Visitors use the same automatic toggle and cooldown; their configured visit limit is retained as an overstay flag, and their card expires after checkout.
 
 ## Notifications
 

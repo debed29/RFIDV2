@@ -15,7 +15,7 @@ An RFID attendance system where:
 - A user taps an RFID card on an **RFID-RC522** reader connected to an **ESP32**.
 - The ESP32 sends the card's UID over WiFi to a **Flask server** running on a PC.
  The server checks the UID in a local **SQLite database**:
-    - **Registered card** → the server checks the database: no open record means TIME IN; an open record means TIME OUT after that card's 30-second cooldown.
+    - **Registered card** → the server checks the database: no open record means TIME IN; an open record means TIME OUT after that card's 10-second cooldown.
     - **Unknown card** → denied and must be registered by staff.
     - **Visitor** → the same automatic in/out and per-card cooldown applies; completed visitor cards expire, and overstay/missing-time-out records are flagged.
 - The ESP32 displays the same scan outcome, name, role, and message as the student display on a **16x2 I2C LCD**, cycling between the summary and detail to fit the smaller screen.
@@ -37,7 +37,7 @@ An RFID attendance system where:
 
 - With no active attendance record, an eligible card records TIME IN.
 - With an active record, the next eligible tap records TIME OUT; no screen button or selected mode is needed.
-- Each card has a persisted 30-second cooldown after a successful attendance action. Rejected taps report the remaining time without changing the log or extending the cooldown.
+- Each card has a persisted 10-second cooldown after a successful attendance action. Rejected taps report the remaining time without changing the log or extending the cooldown.
 - Unknown cards are denied. Staff register them through the admin UI.
 - Student and visitor registration use separate Surname, First Name, and Middle Name fields and display names in that order. Student numbers are entered by the admin and required for students; visitor numbers are optional. CSV exports include each name part, and legacy full-name-only records are split using their original First Middle Surname order where possible. Registration numbers remain separate from any official school number maintained in the mobile API profile.
 - Existing temporary visitor records can still be upgraded. Visitors retain their time limits and are expired after checkout; late checkout is recorded and flagged as an overstay.
@@ -635,8 +635,8 @@ void loop() {
 6. Upload `rfid_reader.ino` to the ESP32 and open Serial Monitor at **115200 baud**. Confirm WiFi reports a connected ESP32 IP.
    The LCD shows the scan summary and then the role/message for about 4.5 seconds, matching the student display's result duration.
 7. Start Capture UID in the admin UI and tap the physical card. The next reader scan is captured once, shows `CARD READ SUCCESSFULLY`, and is not recorded as attendance. Complete the form and save the card.
-8. Tap a registered card; it should show TIME IN. A tap within 30 seconds should show the remaining cooldown and leave attendance unchanged.
-9. After 30 seconds, tap again; it should show TIME OUT. After another 30 seconds, the next tap should show TIME IN.
+8. Tap a registered card; it should show TIME IN. A tap within 10 seconds should show the remaining cooldown and leave attendance unchanged.
+9. After 10 seconds, tap again; it should show TIME OUT. After another 10 seconds, the next tap should show TIME IN.
 10. An unknown card should be denied and should not be added automatically. Deleting a card archives it and retains its attendance history; the UID can then be captured and registered again as a separate record. Name corrections in the admin UI must preserve the card, student number, and attendance history.
 
 ---
@@ -649,7 +649,7 @@ void loop() {
 - [ ] `python app_ui.py` opens; users and logs tabs display data.
 - [ ] `python student_display.py` opens without an attendance control.
 - [ ] ESP32 connects to WiFi (Serial Monitor confirms).
-- [ ] A scan records IN when no record is open; scans within 30 seconds are rejected without changing the log.
+- [ ] A scan records IN when no record is open; scans within 10 seconds are rejected without changing the log.
 - [ ] After cooldown, a tap automatically records OUT; after another cooldown, a tap records a new IN.
 - [ ] Unknown cards are denied; visitor overstay/missing-time-out flags appear in the UI.
 

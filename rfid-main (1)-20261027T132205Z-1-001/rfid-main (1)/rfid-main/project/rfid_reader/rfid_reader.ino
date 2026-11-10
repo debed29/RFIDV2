@@ -6,8 +6,8 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-const char* WIFI_SSID  = "realme 8i";          // <-- put your WiFi name (2.4 GHz only!)
-const char* WIFI_PASS  = "dadadada";       // <-- put your WiFi password
+const char* WIFI_SSID  = "YOUR_WIFI_SSID";
+const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
 const char* SERVER_URL = "http://10.140.90.90:5001/tap";  // PC IPv4 on the current network
 const unsigned long REGISTRATION_POLL_INTERVAL_MS = 500;
 unsigned long lastRegistrationPoll = 0;

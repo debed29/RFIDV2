@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 DB_NAME = "rfid_system.db"
 SCHOOL_TZ = timezone(timedelta(hours=8))
-TAP_COOLDOWN_SECONDS = 30
+TAP_COOLDOWN_SECONDS = 10
 
 def school_now():
     return datetime.now(SCHOOL_TZ)
